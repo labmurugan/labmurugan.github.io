@@ -190,51 +190,19 @@ function generatePeopleHTML(peopleData) {
     if (window.location.protocol !== 'file:') {
         const piImg = principalInvestigator.querySelector('img');
         const basePath = '../data/headshots/';
+        const imagePath = basePath + 'murugan_arvind.jpg';
         
-        const nameVariants = [
-            'murugan_arvind',
-            'Murugan_Arvind',
-            'murugan_Arvind',
-            'Murugan_arvind'
-        ];
+        // Try to load the image
+        const testImg = new Image();
+        testImg.onload = function() {
+            piImg.src = imagePath;
+        };
         
-        const extensions = ['.jpg', '.jpeg', '.png'];
+        testImg.onerror = function() {
+            piImg.src = '../data/headshots/placeholder.jpeg';
+        };
         
-        const fileVariants = [];
-        nameVariants.forEach(name => {
-            extensions.forEach(ext => {
-                fileVariants.push(name + ext);
-            });
-        });
-        
-        console.log('Looking for PI headshot...');
-        
-        // Try each variant
-        tryNextVariant(0);
-        
-        function tryNextVariant(index) {
-            if (index >= fileVariants.length) {
-                console.log('No PI headshot found after trying all variants, using placeholder');
-                piImg.src = '../data/headshots/placeholder.jpeg';
-                return;
-            }
-            
-            const currentPath = basePath + fileVariants[index];
-            console.log(`- Trying: ${currentPath}`);
-            
-            const testImg = new Image();
-            testImg.onload = function() {
-                console.log(`Found PI headshot: ${currentPath}`);
-                piImg.src = currentPath;
-            };
-            
-            testImg.onerror = function() {
-                console.log(`Not found: ${currentPath}`);
-                tryNextVariant(index + 1);
-            };
-            
-            testImg.src = currentPath;
-        }
+        testImg.src = imagePath;
     }
     
     // Add Postdocs
@@ -426,53 +394,37 @@ function createPersonElement(person) {
         let firstNameLower = firstName.toLowerCase().trim();
         let lastNameLower = lastName.toLowerCase().trim();
         
-        // 2. If last name has non-alphabet symbols (including spaces), use text after the symbol
-        const nonAlphabetMatch = lastNameLower.match(/[^a-z ]+(.+)/) || lastNameLower.match(/\s+(.+)/);
-        if (nonAlphabetMatch) {
-            lastNameLower = nonAlphabetMatch[1];
+        // 2. Check if last name contains apostrophes, if so use 'irish'
+        if (/['`'']+/.test(lastNameLower)) {
+            lastNameLower = 'irish';
+        } 
+        // Otherwise extract the part before any space or hyphen
+        else if (/[ \-""]+/.test(lastNameLower)) {
+            lastNameLower = lastNameLower.split(/[ \-""]+/)[0].toLowerCase();
         }
         
-        // Do the same for first name
-        const firstNameNonAlphabetMatch = firstNameLower.match(/[^a-z ]+(.+)/) || firstNameLower.match(/\s+(.+)/);
-        if (firstNameNonAlphabetMatch) {
-            firstNameLower = firstNameNonAlphabetMatch[1];
+        // For first name, extract the part before any space, hyphen, or apostrophe
+        if (/[ \-'`''""]+/.test(firstNameLower)) {
+            firstNameLower = firstNameLower.split(/[ \-'`''""]+/)[0].toLowerCase();
         }
         
-        // 3. Try lastname_firstname.jpg, then lastname_firstname.png
-        const filename = `${lastNameLower}_${firstNameLower}`;
-        console.log(`Looking for headshot for ${firstName} ${lastName}...`);
+        // Create the filename in lowercase_lowercase.jpg format
+        const imagePath = `${basePath}${lastNameLower}_${firstNameLower}.jpg`;
         
-        // Try jpg first
-        const jpgPath = `${basePath}${filename}.jpg`;
-        console.log(`- Trying: ${jpgPath}`);
+        // Log the filename for debugging
+        console.log(`Attempting to load image for ${firstName} ${lastName}:`, imagePath);
         
-        const imgJpg = new Image();
-        imgJpg.onload = function() {
-            console.log(`Found headshot: ${jpgPath}`);
-            img.src = jpgPath;
+        // Try to load the image
+        const testImg = new Image();
+        testImg.onload = function() {
+            img.src = imagePath;
         };
         
-        imgJpg.onerror = function() {
-            // Try png if jpg fails
-            const pngPath = `${basePath}${filename}.png`;
-            console.log(`- Trying: ${pngPath}`);
-            
-            const imgPng = new Image();
-            imgPng.onload = function() {
-                console.log(`Found headshot: ${pngPath}`);
-                img.src = pngPath;
-            };
-            
-            imgPng.onerror = function() {
-                // If both fail, use placeholder
-                console.log(`No headshot found for ${firstName} ${lastName}`);
-                img.src = '../data/headshots/placeholder.jpeg';
-            };
-            
-            imgPng.src = pngPath;
+        testImg.onerror = function() {
+            img.src = '../data/headshots/placeholder.jpeg';
         };
         
-        imgJpg.src = jpgPath;
+        testImg.src = imagePath;
     }
     
     return div;
