@@ -1,0 +1,30 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails and icon files
+._*
+Icon?
+
+# Temporary files and backups
+*~
+*.swp
+*.swo
+
+# Editor settings (e.g., Visual Studio Code, IntelliJ)
+.vscode/
+.idea/
+
+# Node.js dependencies (if applicable)
+node_modules/
+
+# Log files
+*.log
+
+# Build and output directories (adjust these if your project uses different names)
+dist/
+build/
+_site/
+.jekyll-cache/
+public/
