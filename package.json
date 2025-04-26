@@ -1,4 +1,20 @@
 {
+  "name": "murugan-lab-website",
+  "version": "1.0.0",
+  "description": "Static website for the Murugan Lab at University of Chicago",
+  "main": "local-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node local-server.js",
+    "update": "node scripts/update_website.js"
+  },
+  "keywords": [
+    "website",
+    "static",
+    "academic"
+  ],
+  "author": "Arvind Murugan",
+  "license": "MIT",
   "dependencies": {
     "xlsx": "^0.18.5"
   }

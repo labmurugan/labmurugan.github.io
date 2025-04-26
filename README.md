@@ -13,17 +13,34 @@ This is a simplified version of the Murugan Lab website, migrated from the origi
 - `data/headshots/` - Directory for team member profile photos
 - `images/` - Directory for all website images
 - `pages/` - Directory containing all other pages:
-  - `people.html` - Team members page
+  - `people.html` - Team members page (statically generated)
   - `publications.html` - Research publications
-  - `pub_descriptions.html` - Detailed publication descriptions
+  - `pub_descriptions.html` - Detailed publication descriptions (statically generated)
   - `contact.html` - Contact information
   - `teaching.html` - Teaching information
+- `scripts/` - Directory for utility scripts
+  - `update_website.js` - Script to generate static HTML from Excel data
+- `templates/` - Directory for HTML templates used by the static site generator
 
 ## How to Update Content
 
+### Updating the Website Content
+
+The website uses a static generation approach. To update content:
+
+1. Edit the `data/website_data.xlsx` Excel file with your changes
+2. Run the update script to regenerate the static HTML:
+
+```bash
+# Run the update script
+npm run update
+```
+
+3. Push the changes to your web server or GitHub Pages
+
 ### People
 
-The People page automatically loads data from an Excel spreadsheet:
+The People page content is generated from the Excel spreadsheet:
 
 1. Edit the `data/website_data.xlsx` file to add/update team members
 2. The Excel file must have a sheet named "Trainees" with these columns:
@@ -38,6 +55,8 @@ The People page automatically loads data from an Excel spreadsheet:
    - Format: `lastname_firstname.jpg` or `lastname_firstname.png` (all lowercase)
    - Example: `smith_john.jpg`
 
+4. Run `npm run update` to regenerate the static HTML
+
 ### Publications
 
 There are two publication pages:
@@ -46,7 +65,7 @@ There are two publication pages:
    - 'All publications' link in every header goes to Google Scholar, sorted by date
 
 2. **Publication Descriptions** (`pages/pub_descriptions.html`):
-   - Automatically loads data from the "publication_descriptions" sheet in `data/website_data.xlsx`
+   - Content is generated from the "publication_descriptions" sheet in `data/website_data.xlsx`
    - To update, edit the Excel sheet with these columns:
      - `title`: Publication title
      - `authors`: Author names
@@ -55,6 +74,8 @@ There are two publication pages:
      - `url`: Link to the publication
      - `tags`: Tags for categorizing the paper (e.g., `[Bio]`, `[Learning]`)
      - `description`: Detailed description of the publication
+   
+   - Run `npm run update` to regenerate the static HTML
 
 ### Adding Images
 
@@ -90,9 +111,11 @@ The website uses CSS Grid and Flexbox for layout. To modify:
 
 To deploy this website:
 
-1. Upload all files and directories to your web hosting service
-2. Ensure the directory structure is maintained
-3. Test all links and functionality
+1. Update your content in the Excel file
+2. Run `npm run update` to generate static HTML
+3. Test locally using `npm start` to run local server; open browser to localhost:8000
+4. Push all files (which ones) to GitHub Pages. Ensure the directory structure is maintained
+
 
 ## Local Testing
 
@@ -107,34 +130,31 @@ The repository includes a simple Node.js web server for local testing:
 npm install
 
 # Run the local server
-node local-server.js
+npm start
 ```
 
-Then open your browser to http://localhost:8000
+Then open your browser to <http://localhost:8000>
 
 ### Option 2: Open files directly in browser
 
-The website is also configured with fallback data for direct local testing:
-
-1. Simply open the `index.html` file directly in your browser.
-2. For the People page, sample data will be displayed because Excel files cannot be loaded locally via JavaScript due to browser security restrictions.
+Since the website now uses static HTML pages, you can simply open any HTML file directly in your browser without a server.
 
 ## Troubleshooting
 
-If you see "Error loading people data" or "Error loading publication data" when testing locally, it's likely due to one of these issues:
+If you encounter issues with the static generation process:
 
-1. You're opening files directly with the file:// protocol (use a web server instead)
-2. The Excel file couldn't be found (check the filename and path)
-3. The required sheet is missing from the Excel file ("Trainees" for people data, "publication_descriptions" for publication data)
-4. CORS restrictions (use the local web server)
+1. Check that you have Node.js installed (v14 or higher recommended)
+2. Verify that the Excel file exists and has the required sheets
+3. Run `npm install` to ensure all dependencies are installed
+4. Check the error message in the console for specific issues
 
 ### Excel Inspection Utility
 
-If you encounter issues with the people data, use the included script to inspect the Excel file:
+If you encounter issues with the Excel data, use the included script to inspect the Excel file:
 
 ```bash
 cd scripts
-node inspect-excel.js
+node inspect-excel.js ../data/website_data.xlsx
 ```
 
-This utility will show the structure of your Excel file and help identify any issues. 
+This utility will show the structure of your Excel file and help identify any issues.

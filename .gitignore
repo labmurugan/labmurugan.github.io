@@ -1,3 +1,6 @@
+#data file
+data/website_data.xlsx
+
 # macOS system files
 .DS_Store
 .AppleDouble

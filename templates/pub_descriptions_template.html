@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore key publications from the Murugan Lab at UChicago on physical learning, molecular information, and evolution with accessible summaries of our research findings and breakthroughs.">
+    <meta name="keywords" content="Murugan Lab publications, physical learning research, molecular information processing papers, evolution research, Arvind Murugan research, biophysics publications">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Publication Descriptions | Murugan Lab @ UChicago">
+    <meta property="og:description" content="Explore key publications from the Murugan Lab with accessible summaries of our research on physical learning and molecular evolution.">
+    <meta property="og:image" content="https://muruganlab.uchicago.edu/images/origami_banner.jpg">
+    <meta property="og:url" content="https://muruganlab.uchicago.edu/pages/pub_descriptions.html">
+    <meta property="og:type" content="website">
+    
+    <title>Publication Descriptions | Murugan Lab @ UChicago</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../images/favicon.png" type="image/png">
+    <style>
+        .publication {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .pub-header {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .pub-authors, .pub-journal {
+            font-size: 0.85em;
+            margin: 0;
+        }
+        .pub-description {
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        .year-section {
+            margin-bottom: 20px;
+        }
+        .year-heading {
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+        #loading-message {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        #error-message {
+            text-align: center;
+            padding: 20px;
+            color: #f44336;
+            background-color: #ffebee;
+            border-radius: 4px;
+            margin: 20px 0;
+            display: none;
+        }
+        #file-selector-container {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #e3f2fd;
+            border-radius: 4px;
+            display: none;
+        }
+        #file-selector-container p {
+            margin-bottom: 15px;
+        }
+        .file-upload-btn {
+            padding: 10px 15px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .file-upload-btn:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="contact-info">
+            <p>amurugan@uchicago.edu | (773) 834-3146</p>
+        </div>
+        <nav>
+            <div class="logo">
+                <a href="https://www.uchicago.edu" target="_blank">
+                    <img src="../images/UChicago_Seal_2Color_MaroonBorder_WhiteBorder_RGB.png" alt="University of Chicago Logo" class="uchicago-logo">
+                </a>
+                <a href="../">Murugan Lab @ UChicago</a>
+            </div>
+            <button class="menu-toggle" aria-label="Toggle navigation menu">☰</button>
+            <ul class="menu">
+                <li><a href="../">Home</a></li>
+                <li><a href="people.html">People</a></li>
+                <li><a href="https://scholar.google.com/citations?hl=en&user=KClBPZUAAAAJ&view_op=list_works&sortby=pubdate" target="_blank">All publications</a></li>
+                <li><a href="pub_descriptions.html">Select publications</a></li>
+                <li><a href="teaching.html">Teaching</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h1>Publication Descriptions</h1>
+        
+            <div id="loading-message">Loading publications...</div>
+            
+            <div id="file-selector-container">
+                <p><strong>Local File Access</strong></p>
+                <p>When viewing this page locally, browsers restrict direct access to files for security reasons.</p>
+                <p>Please select the Excel file below:</p>
+                <input type="file" id="csv-file-selector" accept=".xlsx" style="display:none;">
+                <label for="csv-file-selector" class="file-upload-btn">Select website_data.xlsx file</label>
+            </div>
+            
+            <div id="error-message">
+                <p><strong>Unable to load publication data.</strong></p>
+                <p>This might be because:</p>
+                <ul>
+                    <li>The Excel file is missing or incorrectly formatted</li>
+                    <li>JavaScript is disabled or encountered an error</li>
+                    <li>The page is being viewed locally without a server</li>
+                </ul>
+                <p>If you're viewing this locally, please use the file selector above.</p>
+            </div>
+            
+            <div id="publications-container"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Murugan Lab, University of Chicago. All rights reserved.</p>
+    </footer>
+
+    <script src="../js/publications.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up file selector event handler
+            const fileSelector = document.getElementById('csv-file-selector');
+            if (fileSelector) {
+                fileSelector.addEventListener('change', handleFileSelect);
+            }
+            
+            // Initialize with a loading message
+            const publicationsContainer = document.getElementById('publications-container');
+            const loadingMessage = document.getElementById('loading-message');
+            const errorMessage = document.getElementById('error-message');
+            
+            // Call populatePublications
+            populatePublications()
+                .then(() => {
+                    // Hide loading message when done (if not already hidden)
+                    if (loadingMessage.style.display !== 'none') {
+                        loadingMessage.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error populating publications:', error);
+                    loadingMessage.style.display = 'none';
+                    errorMessage.style.display = 'block';
+                });
+        });
+    </script>
+</body>
+</html> 
