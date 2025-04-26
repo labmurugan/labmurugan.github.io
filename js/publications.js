@@ -3,7 +3,7 @@ function isRunningLocally() {
     return window.location.protocol === 'file:';
 }
 
-// Function to fetch and parse CSV file
+// Function to fetch and parse Excel file
 async function fetchPublicationsData() {
     console.log('Attempting to fetch publications data...');
     
@@ -15,29 +15,29 @@ async function fetchPublicationsData() {
     }
     
     try {
-        // Try to fetch from the file on the server
-        let csvPath = '../data/publication_descriptions.csv';
+        // Try to fetch from the Excel file on the server
+        let excelPath = '../data/website_data.xlsx';
         
         // Try with different path options if needed
-        const response = await fetch(csvPath);
+        const response = await fetch(excelPath);
         console.log('Fetch response status:', response.status);
         
         if (!response.ok) {
             // Try an alternative path
-            csvPath = 'data/publication_descriptions.csv';
-            const altResponse = await fetch(csvPath);
+            excelPath = 'data/website_data.xlsx';
+            const altResponse = await fetch(excelPath);
             if (!altResponse.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            return parseCSV(await altResponse.text());
+            return parseExcel(await altResponse.arrayBuffer());
         }
         
-        const csvText = await response.text();
-        console.log('CSV data received, length:', csvText.length);
+        const excelData = await response.arrayBuffer();
+        console.log('Excel data received, byte length:', excelData.byteLength);
         
-        return parseCSV(csvText);
+        return parseExcel(excelData);
     } catch (error) {
-        console.error('Error fetching CSV:', error);
+        console.error('Error fetching Excel:', error);
         if (isRunningLocally()) {
             document.getElementById('file-selector-container').style.display = 'block';
         }
@@ -45,63 +45,31 @@ async function fetchPublicationsData() {
     }
 }
 
-// Parse CSV text into an array of objects
-function parseCSV(csvText) {
-    const lines = csvText.split('\n');
-    console.log('CSV lines count:', lines.length);
-    
-    if (lines.length < 2) {
-        console.error('CSV file has too few lines');
-        return [];
-    }
-    
-    const headers = lines[0].split(',').map(header => header.trim().replace(/"/g, ''));
-    console.log('CSV headers:', headers);
-    
-    const publications = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) {
-            console.log(`Skipping empty line at index ${i}`);
-            continue; // Skip empty lines
+// Parse Excel data into an array of objects
+function parseExcel(excelData) {
+    try {
+        // Parse the Excel data using SheetJS
+        const workbook = XLSX.read(excelData, { type: 'array' });
+        
+        // Get the Publication Descriptions sheet specifically
+        const pubSheetName = 'publication_descriptions';
+        
+        if (!workbook.Sheets[pubSheetName]) {
+            console.error(`Sheet "${pubSheetName}" not found in Excel file`);
+            return [];
         }
         
-        try {
-            // Handle commas within quoted fields
-            const values = [];
-            let currentValue = '';
-            let insideQuotes = false;
-            
-            for (let char of lines[i]) {
-                if (char === '"') {
-                    insideQuotes = !insideQuotes;
-                } else if (char === ',' && !insideQuotes) {
-                    values.push(currentValue.replace(/"/g, '').trim());
-                    currentValue = '';
-                } else {
-                    currentValue += char;
-                }
-            }
-            values.push(currentValue.replace(/"/g, '').trim());
-            
-            // Check if we have the expected number of values
-            if (values.length !== headers.length) {
-                console.warn(`Line ${i} has ${values.length} values but expected ${headers.length}. Line content: ${lines[i].substring(0, 50)}...`);
-            }
-            
-            const publication = {};
-            headers.forEach((header, index) => {
-                publication[header] = values[index] || '';
-            });
-            
-            publications.push(publication);
-        } catch (error) {
-            console.error(`Error parsing line ${i}:`, error, lines[i]);
-        }
+        const pubSheet = workbook.Sheets[pubSheetName];
+        
+        // Convert to JSON
+        const publications = XLSX.utils.sheet_to_json(pubSheet);
+        
+        console.log('Parsed publications count:', publications.length);
+        return publications;
+    } catch (error) {
+        console.error('Error parsing Excel data:', error);
+        return [];
     }
-    
-    console.log('Parsed publications count:', publications.length);
-    return publications;
 }
 
 // Function to handle manual file selection
@@ -110,17 +78,23 @@ function handleFileSelect(event) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const csvText = e.target.result;
-            const publications = parseCSV(csvText);
-            renderPublications(publications);
-            document.getElementById('loading-message').style.display = 'none';
+            try {
+                const data = e.target.result;
+                const publications = parseExcel(data);
+                renderPublications(publications);
+                document.getElementById('loading-message').style.display = 'none';
+            } catch (error) {
+                console.error('Error processing file:', error);
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('loading-message').style.display = 'none';
+            }
         };
         reader.onerror = function() {
             console.error('Error reading file');
             document.getElementById('error-message').style.display = 'block';
             document.getElementById('loading-message').style.display = 'none';
         };
-        reader.readAsText(file);
+        reader.readAsArrayBuffer(file);
     }
 }
 
@@ -224,8 +198,32 @@ async function populatePublications() {
     }
 }
 
+// Ensure SheetJS is loaded
+function loadSheetJS() {
+    return new Promise((resolve, reject) => {
+        if (window.XLSX) {
+            resolve();
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load SheetJS library'));
+        document.head.appendChild(script);
+    });
+}
+
 // Run when the document is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM content loaded, starting publications loading...');
-    populatePublications();
+    try {
+        await loadSheetJS();
+        populatePublications();
+    } catch (error) {
+        console.error('Error loading required libraries:', error);
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('loading-message').style.display = 'none';
+    }
 }); 

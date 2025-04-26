@@ -8,9 +8,8 @@ This is a simplified version of the Murugan Lab website, migrated from the origi
 - `css/style.css` - Main stylesheet for the entire website
 - `js/main.js` - JavaScript functionality
 - `js/people.js` - Script to load people data from Excel spreadsheet
-- `js/publications.js` - Script to load publication descriptions from CSV
-- `data/website_data.xlsx` - Excel file containing people data
-- `data/publication_descriptions.csv` - CSV data file for publication descriptions
+- `js/publications.js` - Script to load publication descriptions from Excel spreadsheet
+- `data/website_data.xlsx` - Excel file containing people data and publication descriptions
 - `data/headshots/` - Directory for team member profile photos
 - `images/` - Directory for all website images
 - `pages/` - Directory containing all other pages:
@@ -47,8 +46,8 @@ There are two publication pages:
    - 'All publications' link in every header goes to Google Scholar, sorted by date
 
 2. **Publication Descriptions** (`pages/pub_descriptions.html`):
-   - Automatically loads data from `data/publication_descriptions.csv`
-   - To update, edit the CSV file with these columns:
+   - Automatically loads data from the "publication_descriptions" sheet in `data/website_data.xlsx`
+   - To update, edit the Excel sheet with these columns:
      - `title`: Publication title
      - `authors`: Author names
      - `journal`: Journal/conference name
@@ -122,11 +121,11 @@ The website is also configured with fallback data for direct local testing:
 
 ## Troubleshooting
 
-If you see "Error loading people data" when testing locally, it's likely due to one of these issues:
+If you see "Error loading people data" or "Error loading publication data" when testing locally, it's likely due to one of these issues:
 
 1. You're opening files directly with the file:// protocol (use a web server instead)
 2. The Excel file couldn't be found (check the filename and path)
-3. The Trainees sheet is missing from the Excel file
+3. The required sheet is missing from the Excel file ("Trainees" for people data, "publication_descriptions" for publication data)
 4. CORS restrictions (use the local web server)
 
 ### Excel Inspection Utility
