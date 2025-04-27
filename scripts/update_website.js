@@ -271,7 +271,11 @@ function generatePeoplePage(workbook) {
         // Add Alumni
         if (alumniPostdocs.length > 0 || alumniGradStudents.length > 0 || alumniUndergrads.length > 0) {
             peopleHTML += `
-            <h2 class="section-title">Alumni</h2>`;
+            <div style="text-align: center; margin: 50px 0;">
+                <hr style="width: 50%; margin: 20px auto; border-top: 1px solid #ccc;">
+                <h1 style="margin: 20px 0;">Alumni</h1>
+                <hr style="width: 50%; margin: 20px auto 30px; border-top: 1px solid #ccc;">
+            </div>`;
             
             // Alumni Postdocs
             if (alumniPostdocs.length > 0) {
