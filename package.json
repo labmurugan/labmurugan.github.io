@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mkdir -p tests/results && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=tap --test-reporter-destination=tests/results/test_update_website.tap tests/test_*.js",
     "start": "node local-server.js",
-    "update": "node scripts/update_website.js"
+    "update": "python ../murugan_cv/code_compile_cv/fetch_sheet.py --out data/website_data.xlsx && node scripts/update_website.js",
+    "update:offline": "node scripts/update_website.js"
   },
   "keywords": [
     "website",

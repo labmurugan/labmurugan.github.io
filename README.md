@@ -9,7 +9,7 @@ This is a simplified version of the Murugan Lab website, migrated from the origi
 - `js/main.js` - JavaScript functionality
 - `js/people.js` - Script to load people data from Excel spreadsheet
 - `js/publications.js` - Script to load publication descriptions from Excel spreadsheet
-- `data/website_data.xlsx` - Excel file containing people data and publication descriptions
+- `data/website_data.xlsx` - Downloaded copy of the Google Sheet (gitignored, overwritten by `npm run update`)
 - `data/headshots/` - Directory for team member profile photos
 - `images/` - Directory for all website images
 - `pages/` - Directory containing all other pages:
@@ -28,13 +28,15 @@ This is a simplified version of the Murugan Lab website, migrated from the origi
 
 The website uses a static generation approach. To update content:
 
-1. Edit the `data/website_data.xlsx` Excel file with your changes
-2. Run the update script to regenerate the static HTML:
+1. Edit the Google Sheet (the same one that feeds the CV, see `murugan_cv/CV_WORKFLOW.md`). Do not edit `data/website_data.xlsx` by hand; it is overwritten on every update.
+2. Run the update script. It downloads the Google Sheet to `data/website_data.xlsx` and regenerates the static HTML:
 
 ```bash
 # Run the update script
 npm run update
 ```
+
+To regenerate from the last downloaded copy without going online, use `npm run update:offline`.
 
 3. Push the changes to your web server or GitHub Pages
 
@@ -42,7 +44,7 @@ npm run update
 
 The People page content is generated from the Excel spreadsheet:
 
-1. Edit the `data/website_data.xlsx` file to add/update team members
+1. Edit the "Trainees" tab of the Google Sheet to add/update team members
 2. The Excel file must have a sheet named "Trainees" with these columns:
    - First name, Last name: Person's name
    - Postdoc/Grad/Undergrad: Use "P" for postdocs, "G" for graduate students, "U" for undergraduates
@@ -66,7 +68,7 @@ There are two publication pages:
 
 2. **Publication Descriptions** (`pages/pub_descriptions.html`):
    - Content is generated from the "publication_descriptions" sheet in `data/website_data.xlsx`
-   - To update, edit the Excel sheet with these columns:
+   - To update, edit that tab of the Google Sheet. Columns:
      - `title`: Publication title
      - `authors`: Author names
      - `journal`: Journal/conference name
@@ -111,7 +113,7 @@ The website uses CSS Grid and Flexbox for layout. To modify:
 
 To deploy this website:
 
-1. Update your content in the Excel file
+1. Update your content in the Google Sheet
 2. Run `npm run update` to generate static HTML
 3. Test locally using `npm start` to run local server; open browser to localhost:8000
 4. Push all files (which ones) to GitHub Pages. Ensure the directory structure is maintained
