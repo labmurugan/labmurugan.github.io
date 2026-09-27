@@ -11,6 +11,7 @@ data/website_data.xlsx
 Icon?
 
 # Temporary files and backups
+~$*
 *~
 *.swp
 *.swo
