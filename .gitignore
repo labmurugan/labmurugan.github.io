@@ -31,3 +31,6 @@ build/
 _site/
 .jekyll-cache/
 public/
+
+# Test outputs (local only)
+tests/results/

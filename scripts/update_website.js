@@ -92,37 +92,34 @@ function normalizeTraineeData(trainees) {
     return normalized;
 }
 
+// Function to build the headshot filename (lastname_firstname.jpg) from a person's name
+function headshotFileName(firstName, lastName) {
+    // 1. Convert names to lowercase, trim, and strip apostrophes (O’Brien -> obrien).
+    //    Covers straight ('), backtick (`), and curly (‘ ’) apostrophes.
+    const apostrophes = /['`‘’]/g;
+    let firstNameLower = firstName.toLowerCase().trim().replace(apostrophes, '');
+    let lastNameLower = lastName.toLowerCase().trim().replace(apostrophes, '');
+
+    // 2. Keep only the part before any space or hyphen
+    //    (Chakraverti-Wuerthwein -> chakraverti, Mendez Reina -> mendez)
+    lastNameLower = lastNameLower.split(/[ \-]+/)[0];
+    firstNameLower = firstNameLower.split(/[ \-]+/)[0];
+
+    return `${lastNameLower}_${firstNameLower}.jpg`;
+}
+
 // Function to generate person HTML element
 function createPersonElement(person) {
     const firstName = person['First name'] || '';
     const lastName = person['Last name'] || '';
     const fullName = `${firstName} ${lastName}`.trim();
     const notes = person['Notes/Awards'] || '';
-    
+
     // Handle shared trainees
     const sharedInfo = person['Shared with'] ? `(shared with ${person['Shared with']})` : '';
-    
-    // Handle photo path - using sophisticated name matching from original code
-    // 1. Convert names to lowercase and trim
-    let firstNameLower = firstName.toLowerCase().trim();
-    let lastNameLower = lastName.toLowerCase().trim();
-    
-    // 2. Check if last name contains apostrophes, if so use 'irish'
-    if (/['`'']+/.test(lastNameLower)) {
-        lastNameLower = 'irish';
-    } 
-    // Otherwise extract the part before any space or hyphen
-    else if (/[ \-""]+/.test(lastNameLower)) {
-        lastNameLower = lastNameLower.split(/[ \-""]+/)[0].toLowerCase();
-    }
-    
-    // For first name, extract the part before any space, hyphen, or apostrophe
-    if (/[ \-'`''""]+/.test(firstNameLower)) {
-        firstNameLower = firstNameLower.split(/[ \-'`''""]+/)[0].toLowerCase();
-    }
-    
-    // Create the filename in lastname_firstname.jpg format
-    const photoFileName = `${lastNameLower}_${firstNameLower}.jpg`;
+
+    // Handle photo path
+    const photoFileName = headshotFileName(firstName, lastName);
     const photoPath = `../data/headshots/${photoFileName}`;
     const placeholderPath = '../data/headshots/placeholder.jpeg';
     
@@ -428,5 +425,9 @@ async function main() {
     }
 }
 
-// Run the main function
-main(); 
+// Run the main function (only when invoked directly, not when imported by tests)
+if (require.main === module) {
+    main();
+}
+
+module.exports = { headshotFileName }; 
