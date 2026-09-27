@@ -1,5 +1,6 @@
 #data file
-data/website_data.xlsx
+# Any spreadsheet committed under data/ is publicly downloadable from the site
+data/*.xlsx
 
 # macOS system files
 .DS_Store
